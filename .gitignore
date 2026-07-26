@@ -2,3 +2,4 @@
 /.agents
 /AGENTS.md
 /TODO.md
+__pycache__/
