@@ -23,6 +23,9 @@ class Conformer:
     id: int
     atoms: Atoms
     energy: float | None = None
+    energy_unit: str | None = None
+    optimization_method: str | None = None
+    optimization_converged: bool | None = None
 
 
 @dataclass(slots=True)
