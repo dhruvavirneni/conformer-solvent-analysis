@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from math import ceil
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal
+from typing import Iterable, Literal, Sequence
 import warnings
 
 import numpy as np
@@ -14,6 +15,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 from .generators import Conformer, Ensemble
+from .optimizers.base import BaseOptimizer
 
 _EV_TO_KCAL_PER_MOL = 23.0605478306
 _Method = Literal["MMFF", "UFF", "GFN2-xTB", "ORCA"]
@@ -183,6 +185,136 @@ def optimize(
         molecule=optimized_molecule,
         conformers=tuple(optimized_conformers),
         metadata=metadata,
+    )
+
+
+def hierarchical_optimize(
+    ensemble: Ensemble,
+    workflow: Sequence[BaseOptimizer],
+    target_size: int = 25,
+    retention_rates: Sequence[float] = (),
+) -> Ensemble:
+    """Optimize an ensemble through up to three progressively costly stages.
+
+    Every non-final optimizer runs on the current ensemble, then retains its
+    lowest-energy conformers. The final optimizer runs on all conformers that
+    remain and the result is trimmed to ``target_size`` if needed.
+
+    Parameters
+    ----------
+    ensemble
+        Ensemble to optimize. It is never modified.
+    workflow
+        Ordered sequence of one to three :class:`BaseOptimizer` instances.
+    target_size
+        Minimum number retained between stages and maximum number returned.
+    retention_rates
+        Fraction retained after each non-final stage. Its length must equal
+        ``len(workflow) - 1``.
+    """
+    workflow = tuple(workflow)
+    retention_rates = tuple(retention_rates)
+    _validate_hierarchical_inputs(ensemble, workflow, target_size, retention_rates)
+
+    current = ensemble
+    stages: list[dict[str, object]] = []
+    final_stage_index = len(workflow) - 1
+
+    for stage_index, optimizer in enumerate(workflow):
+        input_size = len(current.conformers)
+        optimized = optimizer.optimize(current)
+        ranked_conformers = _ranked_conformers(optimized)
+        energies = [conformer.energy for conformer in ranked_conformers]
+
+        if stage_index == final_stage_index:
+            output_size = min(len(ranked_conformers), target_size)
+        else:
+            retention_rate = retention_rates[stage_index]
+            output_size = min(
+                len(ranked_conformers),
+                max(target_size, ceil(input_size * retention_rate)),
+            )
+
+        current = _subset_ensemble(optimized, ranked_conformers[:output_size])
+        retained_cutoff = ranked_conformers[output_size - 1].energy
+        stages.append(
+            {
+                "optimizer": optimizer.method,
+                "input_size": input_size,
+                "output_size": output_size,
+                "minimum_energy": energies[0],
+                "maximum_energy": energies[-1],
+                "retained_energy_cutoff": retained_cutoff,
+                "energy_unit": "kcal/mol",
+            }
+        )
+
+    metadata = deepcopy(current.metadata)
+    metadata["hierarchical_optimization"] = {
+        "workflow": [optimizer.method for optimizer in workflow],
+        "target_size": target_size,
+        "retention_rates": list(retention_rates),
+        "stages": stages,
+    }
+    return Ensemble(
+        smiles=current.smiles,
+        molecule=Chem.Mol(current.molecule),
+        conformers=current.conformers,
+        metadata=metadata,
+    )
+
+
+def _validate_hierarchical_inputs(
+    ensemble: Ensemble,
+    workflow: tuple[BaseOptimizer, ...],
+    target_size: int,
+    retention_rates: tuple[float, ...],
+) -> None:
+    if not isinstance(ensemble, Ensemble):
+        raise TypeError("ensemble must be an Ensemble instance.")
+    if not ensemble.conformers:
+        raise ValueError("ensemble must contain at least one conformer.")
+    if not workflow:
+        raise ValueError("workflow must contain at least one optimizer.")
+    if len(workflow) > 3:
+        raise ValueError("workflow may contain at most three optimizer instances.")
+    if not all(isinstance(optimizer, BaseOptimizer) for optimizer in workflow):
+        raise TypeError("workflow entries must be BaseOptimizer instances.")
+    if isinstance(target_size, bool) or not isinstance(target_size, int) or target_size < 1:
+        raise ValueError("target_size must be a positive integer.")
+    if len(retention_rates) != len(workflow) - 1:
+        raise ValueError("retention_rates must have one value per non-final workflow stage.")
+    for retention_rate in retention_rates:
+        if (
+            not isinstance(retention_rate, (float, int))
+            or isinstance(retention_rate, bool)
+            or not 0 < retention_rate <= 1
+        ):
+            raise ValueError("retention_rates values must be numbers greater than 0 and at most 1.")
+
+
+def _ranked_conformers(ensemble: Ensemble) -> list[Conformer]:
+    if any(conformer.energy is None for conformer in ensemble.conformers):
+        raise ValueError("hierarchical optimization requires energies from every optimizer.")
+    return sorted(
+        ensemble.conformers,
+        key=lambda conformer: (float(conformer.energy), conformer.id),
+    )
+
+
+def _subset_ensemble(ensemble: Ensemble, conformers: Iterable[Conformer]) -> Ensemble:
+    """Return an ensemble containing selected conformers in their ranked order."""
+    selected_conformers = tuple(conformers)
+    selected_ids = {conformer.id for conformer in selected_conformers}
+    molecule = Chem.Mol(ensemble.molecule)
+    for conformer in tuple(molecule.GetConformers()):
+        if conformer.GetId() not in selected_ids:
+            molecule.RemoveConformer(conformer.GetId())
+    return Ensemble(
+        smiles=ensemble.smiles,
+        molecule=molecule,
+        conformers=selected_conformers,
+        metadata=deepcopy(ensemble.metadata),
     )
 
 
