@@ -50,8 +50,8 @@ class Ensemble:
     def from_smiles(cls, smiles: str, n_confs: int = 25) -> "Ensemble":
         """Create an unoptimized ensemble from SMILES.
 
-        This is the object oriented equivalent of :func:`generate` and keeps
-        the public workflow ready for subsequent ``optimize`` and ``cluster``
+        This is the object oriented equivalent of "generate" function and keeps
+        the public workflow ready for subsequent "optimize" and "cluster"
         methods.
         """
         return generate(smiles, n_confs=n_confs)
