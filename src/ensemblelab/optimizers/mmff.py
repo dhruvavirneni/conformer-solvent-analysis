@@ -50,15 +50,9 @@ class MMFFOptimizer(BaseOptimizer):
         )
         return float(force_field.CalcEnergy()), status == 0
 
-    def _history_settings(self) -> dict[str, Any]:
+    def _history_details(self) -> dict[str, Any]:
         return {
-            "fmax_eV_per_angstrom": None,
             "max_steps": self.max_steps,
-            "solvent": None,
-            "charge": None,
-            "multiplicity": None,
-            "orca_simple_input": None,
-            "orca_blocks": None,
         }
 
 
@@ -71,9 +65,7 @@ class UFFOptimizer(MMFFOptimizer):
         """Canonical optimization method name."""
         return "UFF"
 
-    def _optimize_conformer(
-        self, molecule: Chem.Mol, conformer_id: int, atoms: Atoms
-    ) -> tuple[float, bool]:
+    def _optimize_conformer(self, molecule: Chem.Mol, conformer_id: int, atoms: Atoms) -> tuple[float, bool]:
         force_field = AllChem.UFFGetMoleculeForceField(molecule, confId=conformer_id)
         if force_field is None:
             raise RuntimeError(
@@ -88,3 +80,8 @@ class UFFOptimizer(MMFFOptimizer):
             molecule.GetConformer(conformer_id).GetPositions(), dtype=float
         )
         return float(force_field.CalcEnergy()), status == 0
+
+    def _history_details(self) -> dict[str, Any]:
+        return {
+            "max_steps": self.max_steps,
+        }

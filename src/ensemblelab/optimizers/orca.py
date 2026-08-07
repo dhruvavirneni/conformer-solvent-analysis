@@ -83,13 +83,13 @@ class ORCAOptimizer(BaseOptimizer):
         directory.mkdir(parents=True, exist_ok=True)
         return run(str(directory))
 
-    def _history_settings(self) -> dict[str, Any]:
+    def _history_details(self) -> dict[str, Any]:
         return {
-            "fmax_eV_per_angstrom": self.fmax,
-            "max_steps": self.max_steps,
-            "solvent": None,
-            "charge": self._resolved_charge,
-            "multiplicity": self._resolved_multiplicity,
-            "orca_simple_input": self.orca_simple_input,
-            "orca_blocks": self.orca_blocks,
+        "max_steps": self.max_steps,
+        "fmax": self.fmax,
+        "charge": self._resolved_charge,
+        "multiplicity": self._resolved_multiplicity,
+        "orca_simple_input": self.orca_simple_input,
+        "orca_blocks": self.orca_blocks,
         }
+    # add n_cores and memory through orca? affect reproducibility and performance on other machines
