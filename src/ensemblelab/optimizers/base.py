@@ -85,12 +85,14 @@ class BaseOptimizer(ABC):
             metadata,
             process="optimization",
             method=self.method,
-            energy_unit="kcal/mol",
-            converged_conformer_ids=[
-                identifier for identifier, converged in convergence.items() if converged],
+            n_input_conformers=len(ensemble.conformers),
+            n_output_conformers=len(optimized_conformers),
+            n_converged=sum(convergence.values()),
+            n_unconverged=len(unconverged_ids),
+            converged_conformer_ids=[...],
             unconverged_conformer_ids=unconverged_ids,
-            **self._history_details()
-        )
+            energy_unit="kcal/mol",
+            **self._history_details(),)
         
         # updated status metadata
         metadata.update({
