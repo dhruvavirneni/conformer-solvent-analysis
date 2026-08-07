@@ -72,11 +72,13 @@ class GFN2xTBOptimizer(BaseOptimizer):
         converged = bool(optimizer.run(fmax=self.fmax, steps=self.max_steps))
         return float(atoms.get_potential_energy()) * _EV_TO_KCAL_PER_MOL, converged
 
-    def _history_details(self) -> dict[str, Any]:
+    def _history_settings(self) -> dict[str, Any]:
         return {
-        "max_steps": self.max_steps,
-        "fmax": self.fmax,
-        "charge": self._resolved_charge,
-        "multiplicity": self._resolved_multiplicity,
-        "solvent": self.solvent,
+            "fmax_eV_per_angstrom": self.fmax,
+            "max_steps": self.max_steps,
+            "solvent": self.solvent,
+            "charge": self._resolved_charge,
+            "multiplicity": self._resolved_multiplicity,
+            "orca_simple_input": None,
+            "orca_blocks": None,
         }
