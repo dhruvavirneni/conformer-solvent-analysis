@@ -26,7 +26,27 @@ class Conformer:
     energy_unit: str | None = None
     optimization_method: str | None = None
     optimization_converged: bool | None = None
+# generation history generator helper
+def _generation_history(
+    smiles: str,
+    molecule: Chem.Mol,
+    n_requested: int,
+    n_generated: int,
+) -> dict[str, Any]:
+    """Create the initial provenance record for an ensemble."""
 
+    return {
+        "process": "generation",
+        "method": "ETKDGv3",
+        "requested_smiles": smiles,
+        "canonical_smiles": Chem.MolToSmiles(
+            Chem.RemoveHs(molecule),
+            canonical=True,
+        ),
+        "n_requested": n_requested,
+        "n_generated": n_generated,
+        "random_seed": 42,
+    }
 
 @dataclass(slots=True)
 class Ensemble:
@@ -109,17 +129,20 @@ def generate(smiles: str, n_confs: int = 25) -> Ensemble:
         )
         for conformer_id in conformer_ids
     )
-    metadata: dict[str, Any] = {
-        "generator": "rdkit.ETKDGv3",
-        "requested_smiles": smiles,
-        "canonical_smiles": Chem.MolToSmiles(Chem.RemoveHs(molecule), canonical=True),
-        "n_conformers_requested": n_confs,
-        "n_conformers_generated": len(conformers),
-        "random_seed": 42,
-        "optimization_status": "unoptimized",
-        "energy_status": "uncomputed",
-        "rdkit_version": rdBase.rdkitVersion,
-    }
+    metadata = {
+    "n_conformers": len(conformers),
+    "optimization_status": "unoptimized",
+    "energy_status": "uncomputed",
+    "energy_unit": None,
+    "rdkit_version": rdBase.rdkitVersion,
+    "processing_history": [
+        _generation_history(
+            smiles,
+            molecule,
+            n_confs,
+            len(conformers),
+        )
+    ],}
     return Ensemble(
         smiles=smiles,
         molecule=molecule,
