@@ -15,15 +15,33 @@ from ..generators import Conformer, Ensemble
 
 
 class BaseOptimizer(ABC):
-    """Abstract optimizer that returns a new, synchronized ensemble."""
+    """Abstract optimizer that returns a new, synchronized ensemble"""
 
     @property
     @abstractmethod
     def method(self) -> str:
-        """Canonical name recorded for this optimization backend."""
+        """Canonical name recorded for this optimization backend"""
+
+
+    @staticmethod
+    def _append_history(
+        metadata: dict[str, Any],
+        process: str,
+        method: str,
+        **details: Any,
+    ) -> None:
+        """Append a workflow event to the ensemble history"""
+        history = list(metadata.get("history", []))
+        history.append(
+            {
+                "process": process,
+                "method": method,
+                **details,
+            })
+        metadata["history"] = history
 
     def optimize(self, ensemble: Ensemble) -> Ensemble:
-        """Optimize all conformers and return a new ensemble instance."""
+        """Optimize all conformers and return a new ensemble instance"""
         self._validate_ensemble(ensemble)
 
         optimized_molecule = Chem.Mol(ensemble.molecule)
@@ -55,35 +73,33 @@ class BaseOptimizer(ABC):
         ]
         if unconverged_ids:
             warnings.warn(
-                "Optimization reached its maximum number of steps before convergence "
+                "Optimization reached its maximum number of steps before convergence"
                 f"for conformer IDs: {unconverged_ids}.",
                 RuntimeWarning,
                 stacklevel=2,
             )
 
         metadata = deepcopy(ensemble.metadata)
-        history = list(metadata.get("optimization_history", []))
-        history.append(
-            {
-                "method": self.method,
-                **self._history_settings(),
-                "energy_unit": "kcal/mol",
-                "converged_conformer_ids": [
-                    identifier for identifier, converged in convergence.items() if converged
-                ],
-                "unconverged_conformer_ids": unconverged_ids,
-            }
+        # update history of ensemble with optimization details
+        self._append_history(
+            metadata,
+            process="optimization",
+            method=self.method,
+            energy_unit="kcal/mol",
+            converged_conformer_ids=[
+                identifier for identifier, converged in convergence.items() if converged],
+            unconverged_conformer_ids=unconverged_ids,
+            **self._history_details()
         )
-        metadata.update(
-            {
-                "optimization_status": (
-                    "optimized" if not unconverged_ids else "not_fully_converged"
-                ),
-                "energy_status": "computed",
-                "energy_unit": "kcal/mol",
-                "optimization_history": history,
-            }
-        )
+        
+        # updated status metadata
+        metadata.update({
+            "optimization_status": ("optimized" if not unconverged_ids else "not_fully_converged"),
+            "energy_status": "computed",
+            "energy_unit": "kcal/mol",
+            "n_conformers": len(optimized_conformers),
+        })
+
         return Ensemble(
             smiles=ensemble.smiles,
             molecule=optimized_molecule,
@@ -95,18 +111,18 @@ class BaseOptimizer(ABC):
     def _optimize_conformer(
         self, molecule: Chem.Mol, conformer_id: int, atoms: Atoms
     ) -> tuple[float, bool]:
-        """Optimize one conformer, updating ``molecule`` or ``atoms`` in place."""
+        """Optimize one conformer, updating ``molecule`` or ``atoms`` in place"""
 
     @abstractmethod
-    def _history_settings(self) -> dict[str, Any]:
-        """Return backend settings to store in optimization provenance."""
+    def _history_details(self) -> dict[str, Any]:
+        """Return backend settings to store in optimization provenance"""
 
     @staticmethod
     def _validate_ensemble(ensemble: Ensemble) -> None:
         if not isinstance(ensemble, Ensemble):
-            raise TypeError("ensemble must be an Ensemble instance.")
+            raise TypeError("ensemble must be an Ensemble instance")
         if not ensemble.conformers:
-            raise ValueError("ensemble must contain at least one conformer.")
+            raise ValueError("ensemble must contain at least one conformer")
 
     @staticmethod
     def _validate_max_steps(max_steps: int) -> None:
