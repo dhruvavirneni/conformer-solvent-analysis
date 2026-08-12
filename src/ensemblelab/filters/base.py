@@ -1,9 +1,11 @@
 from __future__ import annotations
-from typing import Any, Sequence
-from ensemblelab.generators import Ensemble
+
 from abc import ABC, abstractmethod
+from collections.abc import Any, Sequence
 from copy import deepcopy
+
 from ensemblelab.generators import Conformer, Ensemble
+
 
 class BaseFilter(ABC):
     """Abstract base class for ensemble filters."""
@@ -38,8 +40,7 @@ class BaseFilter(ABC):
     @abstractmethod
     def apply(self, ensemble: Ensemble) -> Ensemble:
         """Apply the filter to an ensemble and return a new filtered ensemble."""
-        pass
-
+        ...
     @staticmethod
     def _validate_ensemble(ensemble: Ensemble) -> None:
         """Validate that the ensemble is suitable for filtering."""
@@ -54,7 +55,6 @@ class BaseFilter(ABC):
         metadata = deepcopy(ensemble.metadata)
 
         # update filter metadata history of ensemble
-        history = list(metadata.get("filter_history", []))
         self._append_history(
             metadata,
             process="filter",
