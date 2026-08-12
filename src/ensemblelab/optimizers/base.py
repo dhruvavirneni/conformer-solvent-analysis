@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Any
-import warnings
 
 import numpy as np
 from ase import Atoms
@@ -118,6 +118,7 @@ class BaseOptimizer(ABC):
     @abstractmethod
     def _history_details(self) -> dict[str, Any]:
         """Return backend settings to store in optimization provenance"""
+        ...
 
     @staticmethod
     def _validate_ensemble(ensemble: Ensemble) -> None:
