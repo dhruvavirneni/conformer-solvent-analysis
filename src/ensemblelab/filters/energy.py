@@ -9,6 +9,10 @@ class EnergyFilter(BaseFilter):
     window: float | None = None
     top_n: int | None = None
 
+    @property
+    def method(self) -> str:
+        return "energy"
+
     def __post_init__(self) -> None:
         if (self.window is None) == (self.top_n is None):
             raise ValueError("Specify exactly one of window or top_n.")
