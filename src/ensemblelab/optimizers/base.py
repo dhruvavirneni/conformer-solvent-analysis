@@ -142,7 +142,7 @@ class BaseOptimizer(ABC):
         if charge is None:
             return int(Chem.GetFormalCharge(ensemble.molecule))
         if isinstance(charge, bool) or not isinstance(charge, int):
-            raise ValueError("charge must be an integer or None.")
+            raise TypeError("charge must be an integer or None.")
         return charge
 
     @staticmethod
