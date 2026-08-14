@@ -8,8 +8,8 @@ All optimizer classes return a new `Ensemble`. Optimized energies are stored as 
 ## Functions
 
 - **MMFF / UFF:** RDKit force field optimization. 
-- **GFN2-xTB:**  uses [TBLite through ASE] (https://tblite.readthedocs.io/en/latest/api/python.html).\
-- **ORCA:** uses [ASE's ORCA calculator] (https://docs.ase-lib.org/ase/calculators/orca.html). Supply `orca_command`; optional `orca_simple_input`, `orca_blocks`, and `workdir` configure the calculation.
+- **GFN2-xTB:**  uses [TBLite through ASE](https://tblite.readthedocs.io/en/latest/api/python.html).
+- **ORCA:** uses [ASE's ORCA calculator](https://docs.ase-lib.org/ase/calculators/orca.html). Supply `orca_command`; optional `orca_simple_input`, `orca_blocks`, and `workdir` configure the calculation.
 
 
 ### `MMFFOptimizer`
