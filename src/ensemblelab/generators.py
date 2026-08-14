@@ -67,7 +67,7 @@ class Ensemble:
             raise ValueError("conformer IDs must be unique within an ensemble.")
 
     @classmethod
-    def from_smiles(cls, smiles: str, n_confs: int = 25) -> "Ensemble":
+    def from_smiles(cls, smiles: str, n_confs: int = 25) -> Ensemble:
         """Create an unoptimized ensemble from SMILES.
 
         This is the object oriented equivalent of "generate" function and keeps
