@@ -11,8 +11,8 @@ from ase import Atoms
 from ase.optimize import BFGS
 from rdkit import Chem
 
-from .base import BaseOptimizer
 from ..generators import Ensemble
+from .base import BaseOptimizer
 
 _EV_TO_KCAL_PER_MOL = 23.0605478306
 

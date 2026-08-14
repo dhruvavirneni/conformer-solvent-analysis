@@ -9,8 +9,8 @@ from ase import Atoms
 from ase.optimize import BFGS
 from rdkit import Chem
 
-from .base import BaseOptimizer
 from ..generators import Ensemble
+from .base import BaseOptimizer
 
 _EV_TO_KCAL_PER_MOL = 23.0605478306
 
@@ -53,7 +53,7 @@ class GFN2xTBOptimizer(BaseOptimizer):
     ) -> tuple[float, bool]:
         del molecule, conformer_id
         try:
-            from tblite.ase import TBLite
+            from tblite.ase import TBLite # pyright: ignore[reportMissingImports]
         except ImportError as error:
             raise ImportError(
                 "GFN2-xTB optimization requires the optional 'tblite' package. "
@@ -72,7 +72,7 @@ class GFN2xTBOptimizer(BaseOptimizer):
         converged = bool(optimizer.run(fmax=self.fmax, steps=self.max_steps))
         return float(atoms.get_potential_energy()) * _EV_TO_KCAL_PER_MOL, converged
 
-    def _history_settings(self) -> dict[str, Any]:
+    def _history_details(self) -> dict[str, Any]:
         return {
             "fmax_eV_per_angstrom": self.fmax,
             "max_steps": self.max_steps,
