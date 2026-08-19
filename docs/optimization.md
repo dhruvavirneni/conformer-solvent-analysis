@@ -6,7 +6,6 @@
 All optimizer classes return a new `Ensemble`. Optimized energies are stored as kcal/mol on each conformer, and the optimization method, convergence status, and settings are recorded in `metadata["history"]`. If a calculation reaches its maximum number of steps, the returned conformer is still retained with `optimization_converged=False`, and the conformer ID is listed in optimization metadata. Optional backends raise actionable errors when their dependency or executable is unavailable.
 
 ## Functions
-
 - **MMFF / UFF:** RDKit force field optimization. 
 - **GFN2-xTB:**  uses [TBLite through ASE](https://tblite.readthedocs.io/en/latest/api/python.html).
 - **ORCA:** uses [ASE's ORCA calculator](https://docs.ase-lib.org/ase/calculators/orca.html). Supply `orca_command`; optional `orca_simple_input`, `orca_blocks`, and `workdir` configure the calculation.
