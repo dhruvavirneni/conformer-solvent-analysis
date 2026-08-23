@@ -26,6 +26,16 @@ class Conformer:
     energy_unit: str | None = None
     optimization_method: str | None = None
     optimization_converged: bool | None = None
+
+    def show(self) -> str:
+        """Return a concise, human-readable conformer summary.
+
+        This inspection method only renders stored conformer data; it does not
+        perform an optimization or any other calculation.
+        """
+        from .display.summaries import conformer_summary
+
+        return conformer_summary(self)
 # generation history generator helper
 def _generation_history(
     smiles: str,
@@ -86,6 +96,29 @@ class Ensemble:
         if conformer_id not in self.conformer_ids:
             raise KeyError(f"Unknown conformer ID: {conformer_id}")
         return self.molecule.GetConformer(conformer_id)
+
+    def show(
+        self,
+        *,
+        history: bool = False,
+        metadata: bool = False,
+        conformers: bool = True,
+    ) -> str:
+        """Return a human-readable view of this ensemble.
+
+        The default view contains the ensemble summary and conformer table.
+        Set ``history`` or ``metadata`` to include the corresponding stored
+        provenance sections. Rendering is read-only and never triggers
+        expensive analysis or optimization.
+        """
+        from .display.summaries import ensemble_history, ensemble_metadata, ensemble_summary
+
+        sections = [ensemble_summary(self, include_conformers=conformers)]
+        if history:
+            sections.append(ensemble_history(self))
+        if metadata:
+            sections.append(ensemble_metadata(self))
+        return "\n\n".join(sections)
 
 
 def generate(smiles: str, n_confs: int = 25) -> Ensemble:
