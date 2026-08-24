@@ -60,7 +60,7 @@ class ORCAOptimizer(BaseOptimizer):
         try:
             from ase.calculators.orca import ORCA, OrcaProfile
         except ImportError as error:
-            raise ImportError("ORCA optimization requires ASE's ORCA calculator support.") from error
+            raise ImportError("ORCA optimization requires ASE's ORCA calculator support. Install ensemblelab with its orca extra (upcoming) ") from error
 
         def run(directory: str) -> tuple[float, bool]:
             atoms.calc = ORCA(
