@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Any, Sequence
+from collections.abc import Sequence
 from copy import deepcopy
+from typing import Any
 
 from ensemblelab.generators import Conformer, Ensemble
 
@@ -50,11 +51,13 @@ class BaseFilter(ABC):
             raise ValueError("Ensemble must contain at least one conformer.")
 
     # reusable function for building new ensemble following filtration; filter_metadata is specific to filter type applied and is added to the ensemble metadata for provenance tracking
-    def _build_filtered_ensemble(self, ensemble: Ensemble, conformers: Sequence[Conformer], filter_metadata: dict[str, Any]) -> Ensemble:
+    def _build_filtered_ensemble(
+    self,
+    ensemble: Ensemble,
+    conformers: Sequence[Conformer],) -> Ensemble:
         """Construct a new Ensemble with filtered conformers and updated metadata."""
         metadata = deepcopy(ensemble.metadata)
 
-        # update filter metadata history of ensemble
         self._append_history(
             metadata,
             process="filter",
@@ -65,10 +68,10 @@ class BaseFilter(ABC):
         )
 
         metadata["n_conformers"] = len(conformers)
-        
+
         return Ensemble(
             smiles=ensemble.smiles,
             molecule=ensemble.molecule,
             conformers=tuple(conformers),
-            metadata=metadata
+            metadata=metadata,
         )
