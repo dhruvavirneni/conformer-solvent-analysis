@@ -53,11 +53,11 @@ class GFN2xTBOptimizer(BaseOptimizer):
     ) -> tuple[float, bool]:
         del molecule, conformer_id
         try:
-            from tblite.ase import TBLite # pyright: ignore[reportMissingImports]
+            from tblite.ase import TBLite # type: ignore # noqa: I001
         except ImportError as error:
             raise ImportError(
                 "GFN2-xTB optimization requires the optional 'tblite' package. "
-                "Install ensemblelab with its xTB extra."
+                "Install ensemblelab with its xTB extra (upcoming)."
             ) from error
 
         calculator_options: dict[str, Any] = {
