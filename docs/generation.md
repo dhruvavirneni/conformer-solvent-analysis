@@ -11,7 +11,7 @@
 
 
 ### `Conformer`
-**Overview**
+**Overview:** 
 A single generated conformer and its conformer-level data. The `energy` field is `None` until an optimization backend assigns a value. The geometry is stored as an ASE `Atoms` object, while `energy_unit`, `optimization_method`, and `optimization_converged` are attached to the same conformer rather than to a separate ensemble-level array.
 
 Metadata recorded: `id`, `atoms`, `energy`, `energy_unit`, `optimization_method`, `optimization_converged`
@@ -34,7 +34,7 @@ conformer = Conformer(
 
 
 ### `Ensemble`
-**Overview**
+**Overview:** 
 An aligned conformational ensemble containing the input SMILES, the RDKit molecule, and a tuple of `Conformer` objects. The ensemble enforces unique conformer IDs and preserves one explicit conformer index for all downstream analyses. The molecular geometry and energies remain synchronized with the conformer-level metadata.
 
 Metadata recorded: `n_conformers`, `optimization_status`, `energy_status`, `energy_unit`, `rdkit_version`, `processing_history`
@@ -57,7 +57,7 @@ ensemble = Ensemble(
 
 
 ### `generate`
-**Overview**
+**Overview:** 
 Creates an unoptimized ensemble by parsing a SMILES string, adding explicit hydrogens, and embedding multiple conformers with RDKit ETKDGv3. The default random seed is fixed at 42 for reproducibility, and the ensemble stores the canonicalized molecule and generation provenance in `metadata["processing_history"]`. Validation rejects empty or invalid SMILES strings and requires a positive integer value for `n_confs`.
 
 Metadata recorded: `n_conformers`, `optimization_status`, `energy_status`, `energy_unit`, `rdkit_version`, `processing_history`
@@ -72,7 +72,7 @@ ensemble = generate("CCO", n_confs=25)
 
 
 ### `Ensemble.from_smiles`
-**Overview**
+**Overview:** 
 Class method equivalent to calling `generate()`. It is the object-oriented entry point for creating an unoptimized `Ensemble` from a SMILES string and is intended to fit naturally into the broader `Ensemble` workflow for optimization, filtering, and analysis.
 
 Metadata recorded: `n_conformers`, `optimization_status`, `energy_status`, `energy_unit`, `rdkit_version`, `processing_history`
