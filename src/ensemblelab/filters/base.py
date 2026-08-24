@@ -3,9 +3,13 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING, Any  # Added TYPE_CHECKING
 
-from ensemblelab.generators import Conformer, Ensemble
+from ensemblelab.generators import Ensemble
+
+# prevents the circular import at runtime
+if TYPE_CHECKING:
+    from ensemblelab.generators import Conformer
 
 
 class BaseFilter(ABC):
