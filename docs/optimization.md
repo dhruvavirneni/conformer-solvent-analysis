@@ -12,7 +12,7 @@ All optimizer classes return a new `Ensemble`. Optimized energies are stored as 
 
 
 ### `MMFFOptimizer`
-**Overview**
+**Overview:** 
 Optimizes all conformers using RDKit's Universal Force Field (UFF). Each conformer receives an optimized geometry, an energy in kcal/mol, and a convergence status.
 
 Metadata recorded: `max_steps`
@@ -29,8 +29,12 @@ optimized = optimizer.optimize(ensemble)
 
 
 ### `GFN2xTBOptimizer`
-**Overview**
-Optimizes conformers using the GFN2-xTB semiempirical quantum chemical method through TBLite and ASE. Each conformer receives an optimized geometry, an energy in kcal/mol, and a convergence status.
+**Overview:** 
+Optimizes conformers using the GFN2-xTB semiempirical quantum chemical method through TBLite and ASE. Each conformer receives an optimized geometry, an energy in kcal/mol, and a convergence status. **GFN2-xTB optimization is an optional backend powered by TBLite.** Install the core EnsembleLab package normally. TBLite is required only when
+using `GFN2xTBOptimizer`.
+
+Because TBLite contains compiled native code, installation availability
+depends on the user's Python version and operating system.
 
 Metadata recorded: `fmax`, `max_steps`, `solvent`, `charge`, `multiplicity`
 
@@ -51,7 +55,7 @@ optimized = optimizer.optimize(ensemble)
 
 ### `ORCAOptimizer`
 
-**Overview**
+**Overview:** 
 Optimizes conformers using ORCA through ASE's ORCA calculator. ORCA performs the underlying quantum chemical calculation while ASE manages the optimization workflow. Each conformer receives an optimized geometry, an energy in kcal/mol, and a convergence status.
 
 Metadata recorded: `fmax`, `max_steps`, `charge`, `multiplicity`, `orca_simple_input`, `orca_blocks`

@@ -1,4 +1,4 @@
-"""Conformer-ensemble generation backed by RDKit ETKDG."""
+"""Conformer and Ensemble generation backed by RDKit ETKDG."""
 
 from __future__ import annotations
 
@@ -111,7 +111,11 @@ class Ensemble:
         provenance sections. Rendering is read-only and never triggers
         expensive analysis or optimization.
         """
-        from .display.summaries import ensemble_history, ensemble_metadata, ensemble_summary
+        from .display.summaries import (
+            ensemble_history,
+            ensemble_metadata,
+            ensemble_summary,
+        )
 
         sections = [ensemble_summary(self, include_conformers=conformers)]
         if history:
