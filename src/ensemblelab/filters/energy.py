@@ -29,3 +29,7 @@ class EnergyFilter(BaseFilter):
             sorted_conformers = sorted(valid_conformers, key=lambda c: c.energy)
             filtered_conformers = sorted_conformers[: self.top_n]
             return self._build_filtered_ensemble(ensemble, filtered_conformers, {"top_n": self.top_n})
+
+    def _history_details(self) -> dict[str, float | int | None]:
+        """Return the selected energy filter criterion for provenance."""
+        return {"window": self.window, "top_n": self.top_n}
