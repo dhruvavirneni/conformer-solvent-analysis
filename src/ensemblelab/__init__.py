@@ -1,6 +1,31 @@
 """Tools for reproducible molecular conformational-ensemble analysis."""
 
+from .filters import (
+	BaseFilter,
+	CompositeFilter,
+	EnergyFilter,
+	PopulationFilter,
+	RMSDFilter,
+)
 from .generators import Conformer, Ensemble, generate
-from .optimize import hierarchical_optimize, optimize
+from .optimizers import (
+	BaseOptimizer,
+	GFN2xTBOptimizer,
+	MMFFOptimizer,
+	ORCAOptimizer,
+)
 
-__all__ = ["Conformer", "Ensemble", "generate", "hierarchical_optimize", "optimize"]
+__all__ = [
+	"BaseFilter",
+	"BaseOptimizer",
+	"CompositeFilter",
+	"Conformer",
+	"EnergyFilter",
+	"Ensemble",
+	"GFN2xTBOptimizer",
+	"MMFFOptimizer",
+	"ORCAOptimizer",
+	"PopulationFilter",
+	"RMSDFilter",
+	"generate",
+]
