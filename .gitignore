@@ -1,7 +1,6 @@
 /.venv
 /.agents
 /AGENTS.md
-/TODO.md
 __pycache__/
 .aider*
 tests\notebook.ipynb
