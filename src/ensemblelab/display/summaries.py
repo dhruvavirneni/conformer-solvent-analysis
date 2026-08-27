@@ -68,17 +68,9 @@ def ensemble_metadata(ensemble: Any) -> str:
 
 
 def _history_entries(metadata: Mapping[str, Any]) -> list[Mapping[str, Any]]:
-    """Collect legacy and current provenance streams without mutating metadata."""
-    entries: list[Mapping[str, Any]] = []
-    for key in ("processing_history", "history", "optimization_history"):
-        value = metadata.get(key, [])
-        if isinstance(value, list):
-            for entry in value:
-                if isinstance(entry, Mapping):
-                    if key == "optimization_history" and "process" not in entry:
-                        entry = {"process": "optimization", **entry}
-                    entries.append(entry)
-    return entries
+    """Return canonical workflow history without mutating metadata."""
+    value = metadata.get("history", [])
+    return [entry for entry in value if isinstance(entry, Mapping)] if isinstance(value, list) else []
 
 
 def _history_entry(index: int, entry: Mapping[str, Any]) -> str:
