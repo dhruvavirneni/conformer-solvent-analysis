@@ -36,7 +36,7 @@ class BaseOptimizer(ABC):
             {
                 "process": process,
                 "method": method,
-                **details,
+                **{key: value for key, value in details.items() if value is not None},
             })
         metadata["history"] = history
 
@@ -71,6 +71,9 @@ class BaseOptimizer(ABC):
         unconverged_ids = [
             identifier for identifier, converged in convergence.items() if not converged
         ]
+        converged_ids = [
+            identifier for identifier, converged in convergence.items() if converged
+        ]
         if unconverged_ids:
             warnings.warn(
                 "Optimization reached its maximum number of steps before convergence"
@@ -89,7 +92,7 @@ class BaseOptimizer(ABC):
             n_output_conformers=len(optimized_conformers),
             n_converged=sum(convergence.values()),
             n_unconverged=len(unconverged_ids),
-            converged_conformer_ids=[...],
+            converged_conformer_ids=converged_ids,
             unconverged_conformer_ids=unconverged_ids,
             energy_unit="kcal/mol",
             **self._history_details(),)

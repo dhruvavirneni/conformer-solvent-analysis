@@ -79,6 +79,4 @@ class GFN2xTBOptimizer(BaseOptimizer):
             "solvent": self.solvent,
             "charge": self._resolved_charge,
             "multiplicity": self._resolved_multiplicity,
-            "orca_simple_input": None,
-            "orca_blocks": None,
         }
