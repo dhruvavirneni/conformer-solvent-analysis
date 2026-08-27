@@ -3,10 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any  # Added TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ensemblelab.generators import Ensemble
-from typing import Any
 
 # prevents the circular import at runtime
 if TYPE_CHECKING:
@@ -39,7 +38,7 @@ class BaseFilter(ABC):
             {
                 "process": process,
                 "method": method,
-                **details,
+                **{key: value for key, value in details.items() if value is not None},
             })
         metadata["history"] = history
 
