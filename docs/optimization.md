@@ -3,7 +3,7 @@
 ## Overview
 `optimize()` accepts a method name and returns a new `Ensemble`; it does not change the input ensemble. The returned RDKit and ASE coordinates remain synchronized.
 
-All optimizer classes return a new `Ensemble`. Optimized energies are stored as kcal/mol on each conformer, and the optimization method, convergence status, and settings are recorded in `metadata["history"]`. If a calculation reaches its maximum number of steps, the returned conformer is still retained with `optimization_converged=False`, and the conformer ID is listed in optimization metadata. Optional backends raise actionable errors when their dependency or executable is unavailable.
+All optimizer classes return a new `Ensemble`. Optimized energies are stored as kcal/mol on each conformer, and the optimization method, convergence status, and settings are recorded in `metadata["history"]`. If a calculation reaches its maximum number of steps, the returned conformer is still retained with `optimization_converged=False`, and the conformer ID is listed in the optimization history event. Optional backends raise actionable errors when their dependency or executable is unavailable.
 
 ## Functions
 - **MMFF / UFF:** RDKit force field optimization. 

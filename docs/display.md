@@ -11,7 +11,7 @@
 **Overview**
 The default display reports SMILES, explicit atom count, conformer count, whether energy values are available, the stored optimization method, and one row per conformer. When every conformer has an energy in one unit, the table shows relative energy (Delta E) from the lowest energy conformer; this keeps the comparison compact while the absolute energies remain on each `Conformer`.
 
-Set `history=True` to add a workflow history section. The display supports the current generation (`processing_history`), optimizer/filter (`history`), and functional optimizer (`optimization_history`) provenance keys without modifying metadata. Set `metadata=True` to add a raw key/value metadata table. Sections can be combined, and `conformers=False` suppresses the default conformer table.
+Set `history=True` to add a workflow history section. The display renders the chronological provenance log in `metadata["history"]`; generation, optimization, and filtering records may contain different fields, and only populated fields are shown. Set `metadata=True` to add a raw key/value metadata table. Sections can be combined, and `conformers=False` suppresses the default conformer table.
 
 **Usage**
 ```python
