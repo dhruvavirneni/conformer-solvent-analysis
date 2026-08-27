@@ -47,7 +47,7 @@ def _generation_history(
 
     return {
         "process": "generation",
-        "method": "ETKDGv3",
+        "method": "rdkit.ETKDGv3",
         "requested_smiles": smiles,
         "canonical_smiles": Chem.MolToSmiles(
             Chem.RemoveHs(molecule),
@@ -56,6 +56,7 @@ def _generation_history(
         "n_requested": n_requested,
         "n_generated": n_generated,
         "random_seed": 42,
+        "rdkit_version": rdBase.rdkitVersion,
     }
 
 @dataclass(slots=True)
@@ -172,7 +173,7 @@ def generate(smiles: str, n_confs: int = 25) -> Ensemble:
     "energy_status": "uncomputed",
     "energy_unit": None,
     "rdkit_version": rdBase.rdkitVersion,
-    "processing_history": [
+    "history": [
         _generation_history(
             smiles,
             molecule,

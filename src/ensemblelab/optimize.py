@@ -1,4 +1,4 @@
-"""Conformer geometry optimization with RDKit and optional ASE backends."""
+"""Old optimization module. Use ensemblelab.optimizers instead."""
 
 from __future__ import annotations
 
@@ -156,17 +156,19 @@ def optimize(
         )
 
     metadata = deepcopy(ensemble.metadata)
-    history = list(metadata.get("optimization_history", []))
+    history = list(metadata.get("history", []))
     history.append(
         {
+            "process": "optimization",
             "method": canonical_method,
-            "fmax_eV_per_angstrom": fmax if canonical_method in {"GFN2-xTB", "ORCA"} else None,
+            **({"fmax_eV_per_angstrom": fmax} if canonical_method == "GFN2-xTB" else {}),
+            **({"fmax": fmax} if canonical_method == "ORCA" else {}),
             "max_steps": max_steps,
-            "solvent": solvent,
-            "charge": resolved_charge if canonical_method in {"GFN2-xTB", "ORCA"} else None,
-            "multiplicity": resolved_multiplicity if canonical_method in {"GFN2-xTB", "ORCA"} else None,
-            "orca_simple_input": orca_simple_input if canonical_method == "ORCA" else None,
-            "orca_blocks": orca_blocks if canonical_method == "ORCA" else None,
+            **({"solvent": solvent, "charge": resolved_charge, "multiplicity": resolved_multiplicity}
+               if canonical_method == "GFN2-xTB" else {}),
+            **({"charge": resolved_charge, "multiplicity": resolved_multiplicity,
+                "orca_simple_input": orca_simple_input, "orca_blocks": orca_blocks}
+               if canonical_method == "ORCA" else {}),
             "energy_unit": "kcal/mol",
             "converged_conformer_ids": [identifier for identifier, done in convergence.items() if done],
             "unconverged_conformer_ids": unconverged_ids,
@@ -177,7 +179,7 @@ def optimize(
             "optimization_status": "optimized" if not unconverged_ids else "not_fully_converged",
             "energy_status": "computed",
             "energy_unit": "kcal/mol",
-            "optimization_history": history,
+            "history": history,
         }
     )
     return Ensemble(
