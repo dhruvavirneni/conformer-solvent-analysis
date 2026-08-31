@@ -27,15 +27,15 @@ class Conformer:
     optimization_method: str | None = None
     optimization_converged: bool | None = None
 
-    def show(self) -> str:
-        """Return a concise, human-readable conformer summary.
+    def show(self) -> None:
+        """Display a concise, human-readable conformer summary.
 
         This inspection method only renders stored conformer data; it does not
         perform an optimization or any other calculation.
         """
         from .display.summaries import conformer_summary
 
-        return conformer_summary(self)
+        print(conformer_summary(self))
 # generation history generator helper
 def _generation_history(
     smiles: str,
@@ -104,8 +104,8 @@ class Ensemble:
         history: bool = False,
         metadata: bool = False,
         conformers: bool = True,
-    ) -> str:
-        """Return a human-readable view of this ensemble.
+    ) -> None:
+        """Display a human-readable view of this ensemble.
 
         The default view contains the ensemble summary and conformer table.
         Set ``history`` or ``metadata`` to include the corresponding stored
@@ -123,7 +123,7 @@ class Ensemble:
             sections.append(ensemble_history(self))
         if metadata:
             sections.append(ensemble_metadata(self))
-        return "\n\n".join(sections)
+        print("\n\n".join(sections))
 
 
 def generate(smiles: str, n_confs: int = 25) -> Ensemble:
