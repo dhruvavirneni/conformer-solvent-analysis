@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -11,8 +12,13 @@ from rdkit import Chem, rdBase
 from rdkit.Chem import AllChem
 
 from .filters import BaseFilter, CompositeFilter, PopulationFilter
-from .optimizers import BaseOptimizer, GFN2xTBOptimizer, HierarchicalOptimizer, MMFFOptimizer
-from collections.abc import Sequence
+from .optimizers import (
+    BaseOptimizer,
+    GFN2xTBOptimizer,
+    HierarchicalOptimizer,
+    MMFFOptimizer,
+)
+
 
 @dataclass(slots=True)
 class Conformer:
@@ -191,7 +197,8 @@ def generate(smiles: str, n_confs: int = 25) -> Ensemble:
         metadata=metadata,
     )
 
-
+# later --- ASE to SMILES can be unpredictable
+# if user supplies SMILES and Atoms, interpret Atoms in context of SMILES molecule, with no need for helper function
 def setup(
     molecule: str | Atoms,
     n_confs: int,
