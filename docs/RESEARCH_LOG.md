@@ -89,3 +89,26 @@ Testing with butyl butyrate (CCCC(=O)OCCCC) in vacuum (no solvents implemented y
 ## Next Steps:
 Solvent environment addition
 Outsource notebook to structured system with API implementation; analysis begins
+
+
+
+potential topic:
+Catalysis / reaction mechanisms
+
+This might be my favorite domain for you to investigate.
+
+The key object isn't merely a conformer.
+
+It's:
+
+the ensemble of geometries from which chemistry actually happens.
+
+You could eventually get into questions involving:
+
+conformational gating
+competing reaction pathways
+transition-state accessibility
+catalyst flexibility
+dynamic effects
+
+And suddenly EnsembleLab's conformational analysis becomes directly relevant to chemical reactivity.
