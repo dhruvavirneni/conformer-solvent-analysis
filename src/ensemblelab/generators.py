@@ -10,6 +10,9 @@ from ase import Atoms
 from rdkit import Chem, rdBase
 from rdkit.Chem import AllChem
 
+from .filters import BaseFilter, CompositeFilter, PopulationFilter
+from .optimizers import BaseOptimizer, GFN2xTBOptimizer, HierarchicalOptimizer, MMFFOptimizer
+from collections.abc import Sequence
 
 @dataclass(slots=True)
 class Conformer:
@@ -187,3 +190,116 @@ def generate(smiles: str, n_confs: int = 25) -> Ensemble:
         conformers=conformers,
         metadata=metadata,
     )
+
+
+def setup(
+    molecule: str | Atoms,
+    n_confs: int,
+    *,
+    optimizers: Sequence[BaseOptimizer] | None = None,
+    filters: Sequence[BaseFilter] | None = None,
+    target_conformers: int | None = None,
+) -> Ensemble:
+    """Quick generation, optimization, and filtration for a new Ensemble."""
+
+    # Validate all inputs before beginning computational work.
+    if not isinstance(molecule, (str, Atoms)):
+        raise TypeError("molecule must be a SMILES string or ASE Atoms object.")
+
+    if isinstance(molecule, str):
+        if not molecule.strip():
+            raise ValueError("SMILES string cannot be empty.")
+        if Chem.MolFromSmiles(molecule) is None:
+            raise ValueError(f"Invalid SMILES string: {molecule!r}")
+    elif len(molecule) == 0:
+        raise ValueError("ASE Atoms object cannot be empty.")
+
+    if not isinstance(n_confs, int):
+        raise TypeError("n_confs must be an integer.")
+    if n_confs < 1:
+        raise ValueError("n_confs must be at least 1.")
+
+    if target_conformers is not None:
+        if not isinstance(target_conformers, int):
+            raise TypeError("target_conformers must be an integer.")
+        if target_conformers < 1:
+            raise ValueError("target_conformers must be at least 1.")
+        if target_conformers > n_confs:
+            raise ValueError("target_conformers cannot exceed n_confs.")
+
+    if optimizers is not None:
+        if not optimizers:
+            raise ValueError("optimizers cannot be empty.")
+        if not all(isinstance(optimizer, BaseOptimizer) for optimizer in optimizers):
+            raise TypeError("optimizers must contain BaseOptimizer instances.")
+
+    if filters is not None:
+        if not filters:
+            raise ValueError("filters cannot be empty.")
+        if not all(isinstance(filter_, BaseFilter) for filter_ in filters):
+            raise TypeError("filters must contain BaseFilter instances.")
+
+    # Convert ASE input to SMILES so the existing generation pipeline can be used.
+    if isinstance(molecule, Atoms):
+        molecule = _atoms_to_smiles(molecule)
+
+    # Use the standard pipeline unless the user supplies custom components.
+    if optimizers is None:
+        optimizers = (MMFFOptimizer(), GFN2xTBOptimizer())
+
+    if filters is None:
+        filters = (
+            PopulationFilter(target_conformers=target_conformers),
+        )
+
+    ensemble = generate(molecule, n_confs=n_confs)
+
+    # Run the configured optimizers as a hierarchical workflow.
+    ensemble = HierarchicalOptimizer(
+        optimizers=tuple(optimizers)
+    ).optimize(ensemble)
+
+    # Apply filters sequentially through the composite filter.
+    ensemble = CompositeFilter(
+        filters=tuple(filters)
+    ).apply(ensemble)
+
+    return ensemble
+
+def _atoms_to_smiles(atoms: Atoms) -> str:
+    """Helper for converting an ASE Atoms object to a canonical SMILES string."""
+
+    if not isinstance(atoms, Atoms):
+        raise TypeError("atoms must be an ASE Atoms object.")
+
+    if len(atoms) == 0:
+        raise ValueError("ASE Atoms object cannot be empty.")
+
+    symbols = atoms.get_chemical_symbols()
+    positions = atoms.get_positions()
+
+    xyz = [
+        str(len(atoms)),
+        "Generated from ASE Atoms",
+    ]
+
+    xyz.extend(
+        f"{symbol} {x:.8f} {y:.8f} {z:.8f}"
+        for symbol, (x, y, z) in zip(symbols, positions)
+    )
+
+    molecule = Chem.MolFromXYZBlock("\n".join(xyz))
+
+    if molecule is None:
+        raise ValueError("Could not convert ASE Atoms to an RDKit molecule.")
+
+    try:
+        Chem.rdDetermineBonds.DetermineBonds(molecule)
+        Chem.SanitizeMol(molecule)
+    except Exception as exc:
+        raise ValueError(
+            "Could not determine valid molecular connectivity from the "
+            "ASE Atoms object."
+        ) from exc
+
+    return Chem.MolToSmiles(molecule)
