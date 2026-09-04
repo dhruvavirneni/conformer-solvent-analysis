@@ -31,8 +31,10 @@ class Conformer:
 
     id: int
     atoms: Atoms
+    _molecule: Chem.Mol | None = None
     energy: float | None = None
     energy_unit: str | None = None
+    conformer_id: int | None = None
     optimization_method: str | None = None
     optimization_converged: bool | None = None
 
@@ -95,6 +97,10 @@ class Ensemble:
         methods.
         """
         return generate(smiles, n_confs=n_confs)
+
+    def get_mol(self) -> Chem.Mol:
+        """Return the RDKit molecule associated with this ensemble."""
+        return self.molecule
 
     @property
     def conformer_ids(self) -> tuple[int, ...]:
@@ -173,6 +179,7 @@ def generate(smiles: str, n_confs: int = 25) -> Ensemble:
                     molecule.GetConformer(conformer_id).GetPositions(), dtype=float
                 ).copy(),
             ),
+            _molecule=molecule,
         )
         for conformer_id in conformer_ids
     )
