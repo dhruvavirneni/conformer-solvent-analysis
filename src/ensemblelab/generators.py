@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from ase import Atoms
@@ -12,12 +12,9 @@ from rdkit import Chem, rdBase
 from rdkit.Chem import AllChem
 
 from .filters import BaseFilter, CompositeFilter, PopulationFilter
-from .optimizers import (
-    BaseOptimizer,
-    GFN2xTBOptimizer,
-    HierarchicalOptimizer,
-    MMFFOptimizer,
-)
+
+if TYPE_CHECKING:
+    from .optimizers import BaseOptimizer
 
 
 @dataclass(slots=True)
@@ -215,6 +212,13 @@ def setup(
     target_conformers: int | None = None,
 ) -> Ensemble:
     """Quick generation, optimization, and filtration for a new Ensemble."""
+
+    from .optimizers import (
+        BaseOptimizer,
+        GFN2xTBOptimizer,
+        HierarchicalOptimizer,
+        MMFFOptimizer,
+    )
 
     # Validate all inputs before beginning computational work.
     if not isinstance(molecule, (str, Atoms)):
