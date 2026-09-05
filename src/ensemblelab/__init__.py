@@ -11,6 +11,7 @@ from .generators import Conformer, Ensemble, generate
 from .optimizers import (
 	BaseOptimizer,
 	GFN2xTBOptimizer,
+	HierarchicalOptimizer,
 	MMFFOptimizer,
 	ORCAOptimizer,
 )
@@ -23,6 +24,7 @@ __all__ = [
 	"EnergyFilter",
 	"Ensemble",
 	"GFN2xTBOptimizer",
+	"HierarchicalOptimizer",
 	"MMFFOptimizer",
 	"ORCAOptimizer",
 	"PopulationFilter",
